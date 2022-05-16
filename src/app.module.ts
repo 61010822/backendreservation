@@ -3,17 +3,12 @@ import { ConfigModule } from '@nestjs/config'
 
 import { FirestoreModule } from './common/firestore/firestore.module'
 import { AuthModule } from './authentication/auth.module'
-import { CompetitorModule } from './competitor/competitor.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { MenuModule } from './menu/menu.module'
 
 @Module({
-  imports: [
-    FirestoreModule,
-    AuthModule,
-    CompetitorModule,
-    ConfigModule.forRoot()
-  ],
+  imports: [FirestoreModule, MenuModule, AuthModule, ConfigModule.forRoot()],
   controllers: [AppController],
   providers: [AppService]
 })

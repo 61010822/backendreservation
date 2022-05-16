@@ -31,10 +31,11 @@ export const createNestServer = async (expressInstance) => {
     .setVersion('1.0.0')
     .addTag('Reservation')
     .addServer(
-      process.env.NODE_ENV === 'development'
-        ? 'https://us-central1.reservation-1137b.cloudfunctions.net/api/'
-        : 'http://localhost:5001/super-jiew-dev/us-central1/api/'
+      process.env.NODE_ENV === 'production'
+        ? 'https://us-central1-reservation-1137b.cloudfunctions.net/api/'
+        : 'http://localhost:5001/reservation-1137b/us-central1/api/'
     )
+    .addBearerAuth()
     .build()
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('docs', app, document)

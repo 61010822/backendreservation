@@ -7,8 +7,7 @@ import { queryCondition } from './firestore.schema'
 
 @Injectable()
 export class FirestoreService {
-  async getDocument(collection: string, conditions: queryCondition[] = []) {
-    console.log(collection, conditions)
+  async getDocument(collection: String, conditions: queryCondition[] = []) {
     let doc
 
     const ref = this.createReference(collection, conditions)
@@ -22,6 +21,19 @@ export class FirestoreService {
     })
 
     return doc
+  }
+
+  async deleteById(
+    collection: String,
+    id: String
+  ): Promise<firestore.WriteResult> {
+    const ref = this.createReferenceByID(collection, id)
+
+    return await ref.delete()
+  }
+
+  getFirestore() {
+    return admin.firestore()
   }
 
   createReference(collection, conditions = [], limit?) {
@@ -48,9 +60,9 @@ export class FirestoreService {
   }
 
   async getDocumentsList(
-    collection: string,
-    conditions: queryCondition[] = [],
-    limit
+    collection: String,
+    conditions?: queryCondition[],
+    limit?
   ): Promise<Array<any>> {
     const ref = this.createReference(collection, conditions, limit)
 
@@ -64,7 +76,7 @@ export class FirestoreService {
     })
   }
 
-  async isDocumentExist(collection: string, id: string) {
+  async isDocumentExist(collection: String, id: String) {
     const ref = this.createReferenceByID(collection, id)
 
     if ((await ref.get()).exists) {
@@ -99,5 +111,15 @@ export class FirestoreService {
     await ref.create(payload)
 
     return { id: ref.id, ...payload }
+  }
+
+  async updateDocumentByID(
+    menu: string,
+    id: String,
+    payload
+  ): Promise<firestore.WriteResult> {
+    const ref = this.createReferenceByID('menu', id)
+
+    return await ref.update(payload)
   }
 }

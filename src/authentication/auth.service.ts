@@ -1,98 +1,51 @@
-import {
-  Injectable,
-  ServiceUnavailableException,
-  UnauthorizedException
-} from '@nestjs/common'
-import * as dayjs from 'dayjs'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import * as admin from 'firebase-admin'
 
 import { FirestoreService } from '../common/firestore/firestore.service'
-import { AuthInfo } from './auth.schema'
-import { AuthRequestDTO } from './dto/auth.dto'
+import { CreateUserRequest, SetAdminRequest } from './dto/auth.dto'
+import { Response } from 'express'
 
 @Injectable()
 export class AuthService {
   constructor(private firestore: FirestoreService) {}
 
-  async auth(request: AuthRequestDTO): Promise<AuthInfo> {
-    const { v4: uuidv4 } = require('uuid')
-
-    const passcode = request.code
-    const pm_user_id = uuidv4()
-    let isAnonymous = false
+  async setAdmin(request: SetAdminRequest, res: Response) {
+    const auth = admin.auth()
 
     try {
-      const user = await this.firestore.getDocument('competitors', [
-        {
-          field: 'passcode',
-          opStr: '==',
-          value: passcode
-        },
-        {
-          field: 'year',
-          opStr: '==',
-          value: dayjs().year()
-        },
-        {
-          field: 'active',
-          opStr: '==',
-          value: false
-        }
-      ])
-
-      let exam =
-        user?.exam && (await this.firestore.getDocumentByRef(user.exam))
-
-      if (!exam) {
-        exam = await this.firestore.getDocument('exams', [
-          {
-            field: 'permanentCodes',
-            opStr: 'array-contains',
-            value: passcode
-          }
-        ])
-
-        isAnonymous = true
-      }
-
-      this.isTestAllow(user, exam)
-
-      const userId = isAnonymous ? pm_user_id : user.id
-
-      const access_token = await this.generateToken(userId, passcode)
-
-      await this.firestore.setDocumentById('competitors', userId, {
-        active: true,
-        passcode,
-        testedAt: admin.firestore.Timestamp.fromDate(dayjs().toDate())
-      })
+      await auth.setCustomUserClaims(request.id, { admin: true })
 
       return {
-        access_token,
-        userId,
-        code: passcode,
-        examId: exam.id,
-        isAnonymous
+        message: `set admin at ${request.id} success full`
       }
     } catch (error) {
-      if (error) throw error
-      throw new ServiceUnavailableException()
+      res.status(400)
+
+      return error
     }
   }
 
-  isTestAllow(user, exam) {
-    if (!user && !exam) throw new UnauthorizedException()
-  }
-
-  async generateToken(id, code) {
+  async create(id: String, payload: CreateUserRequest) {
     try {
-      return await admin.auth().createCustomToken(id, {
-        code: code
-      })
-    } catch (error) {
-      throw new UnauthorizedException(
-        'Error: on creating custom token, ' + error
-      )
+      return await this.firestore.setDocumentById('user', id, payload)
+    } catch (e) {
+      throw e
     }
+  }
+
+  async validateToken(token: string): Promise<any> {
+    const auth = admin.auth()
+
+    try {
+      return await auth.verifyIdToken(token)
+    } catch (e) {
+      throw new BadRequestException(e)
+    }
+  }
+
+  async getMe(uid: String): Promise<any> {
+    const ref = this.firestore.createReferenceByID('user', uid)
+
+    return await this.firestore.getDocumentByRef(ref)
   }
 }

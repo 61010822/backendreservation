@@ -1,11 +1,7 @@
-export class AuthInfo {
-  access_token: string
-  code: string
-  userId: string
-  examId: string
-  isAnonymous: boolean
-}
-
-export class AuthRequest {
-  code: string
+export interface User {
+  id: String
+  first_name: String
+  last_name: String
+  email: String
+  isAdmin: Boolean
 }
