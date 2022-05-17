@@ -6,9 +6,16 @@ import { AuthModule } from './authentication/auth.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { MenuModule } from './menu/menu.module'
+import { OrderModule } from './order/order.module'
 
 @Module({
-  imports: [FirestoreModule, MenuModule, AuthModule, ConfigModule.forRoot()],
+  imports: [
+    FirestoreModule,
+    AuthModule,
+    OrderModule,
+    MenuModule,
+    ConfigModule.forRoot()
+  ],
   controllers: [AppController],
   providers: [AppService]
 })

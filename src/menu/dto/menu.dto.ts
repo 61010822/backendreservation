@@ -12,7 +12,7 @@ export class MenuPayload {
   @IsString()
   @ApiPropertyOptional()
   @IsUrl()
-  thumbnail?: String | FirebaseFirestore.FieldValue
+  thumbnail?: String
 
   @IsString()
   @ApiProperty()

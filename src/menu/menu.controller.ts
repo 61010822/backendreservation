@@ -10,7 +10,8 @@ import {
   Put,
   Query,
   Res,
-  UseGuards
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common'
 import { firestore } from 'firebase-admin'
 import {
@@ -27,9 +28,11 @@ import { MenuType } from './menu.schema'
 
 import WriteResult = firestore.WriteResult
 import { AdminAuthGuard } from '../authentication/firebaseauth.guard'
+import { FirestoreInterceptor } from '../common/interceptors/firestore.interceptor'
 
 @Controller('menu')
 @ApiTags('Menu')
+@UseInterceptors(FirestoreInterceptor)
 export class MenuController {
   constructor(private menuService: MenuService) {}
 
@@ -58,6 +61,16 @@ export class MenuController {
     if (!content.length) res.status(HttpStatus.NO_CONTENT)
 
     return content
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get menu by ID' })
+  @ApiResponse({ status: 200, description: 'Read success' })
+  @ApiResponse({ status: 204, description: 'No Content' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async getById(@Param('id') id: String): Promise<any> {
+    return await this.menuService.getById(id)
   }
 
   @Put(':id')

@@ -87,10 +87,19 @@ export class FirestoreService {
       )
   }
 
-  async getDocumentByRef(ref: DocumentReference) {
+  async getDocumentByRef(
+    ref: DocumentReference,
+    errorOnNotExist = true
+  ): Promise<any> {
     const doc = await ref.get()
 
-    if (!doc.exists) return undefined
+    if (!doc.exists) {
+      if (errorOnNotExist) {
+        throw new BadRequestException('Document does not exists')
+      } else {
+        return undefined
+      }
+    }
 
     return {
       id: doc.id,
@@ -114,11 +123,11 @@ export class FirestoreService {
   }
 
   async updateDocumentByID(
-    menu: string,
+    collection: String,
     id: String,
     payload
   ): Promise<firestore.WriteResult> {
-    const ref = this.createReferenceByID('menu', id)
+    const ref = this.createReferenceByID(collection, id)
 
     return await ref.update(payload)
   }

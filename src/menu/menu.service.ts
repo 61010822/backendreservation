@@ -15,6 +15,12 @@ export class MenuService {
     return await this.firestore.getDocumentsList('menu')
   }
 
+  async getById(id: String) {
+    const ref = this.firestore.createReferenceByID('menu', id)
+
+    return await this.firestore.getDocumentByRef(ref)
+  }
+
   async create(payload: MenuPayload) {
     try {
       const result: MenuType = await this.firestore.addDocument('menu', payload)
@@ -48,7 +54,12 @@ export class MenuService {
     id: String,
     payload: MenuPayload
   ): Promise<firestore.WriteResult> {
-    if (!payload.thumbnail) payload.thumbnail = firestore.FieldValue.delete()
+    const editedPayload: any = {
+      ...payload
+    }
+
+    if (!editedPayload.thumbnail)
+      editedPayload.thumbnail = firestore.FieldValue.delete()
 
     await this.firestore.isDocumentExist('menu', id)
 

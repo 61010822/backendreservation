@@ -7,7 +7,8 @@ import {
   Post,
   UseGuards,
   Param,
-  Res
+  Res,
+  UseInterceptors
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -24,7 +25,9 @@ import { AuthService } from './auth.service'
 import { User } from './auth.schema'
 import { AdminAuthGuard, FirebaseAuthGuard } from './firebaseauth.guard'
 import { Response } from 'express'
+import { FirestoreInterceptor } from '../common/interceptors/firestore.interceptor'
 
+@UseInterceptors(FirestoreInterceptor)
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
