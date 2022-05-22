@@ -62,6 +62,19 @@ export class AuthController {
     return this.authService.create(id, payload)
   }
 
+  @Get('user/:id')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Get User By ID' })
+  @ApiResponse({ status: 200, description: 'Get Success' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Permission Denied' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @UseGuards(AdminAuthGuard)
+  @ApiBearerAuth()
+  async getUserById(@Param('id') id: String): Promise<User> {
+    return await this.authService.getById(id)
+  }
+
   @Get('/me')
   @HttpCode(200)
   @ApiOperation({ summary: 'Get Current User' })
@@ -73,8 +86,8 @@ export class AuthController {
   @ApiBearerAuth()
   async getMe(@Request() req): Promise<User> {
     const { user } = req
-    const result = await this.authService.getMe(user.uid)
+    const result = await this.authService.getMe(user?.uid)
 
-    return { ...result, isAdmin: Boolean(user.admin) }
+    return { ...result, isAdmin: Boolean(user?.admin) }
   }
 }

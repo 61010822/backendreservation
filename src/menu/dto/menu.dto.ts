@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsNumber, IsString, IsUrl, Min } from 'class-validator'
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Min
+} from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class MenuID {
@@ -12,6 +19,7 @@ export class MenuPayload {
   @IsString()
   @ApiPropertyOptional()
   @IsUrl()
+  @IsOptional()
   thumbnail?: String
 
   @IsString()

@@ -48,4 +48,18 @@ export class AuthService {
 
     return await this.firestore.getDocumentByRef(ref)
   }
+
+  async getById(uid: String): Promise<any> {
+    const ref = this.firestore.createReferenceByID('user', uid)
+
+    const auth = admin.auth()
+
+    const userRecord = await auth.getUser(uid as string)
+    const userData = await this.firestore.getDocumentByRef(ref)
+
+    return {
+      ...userData,
+      isAdmin: Boolean(userRecord.customClaims?.admin)
+    }
+  }
 }
